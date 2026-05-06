@@ -77,4 +77,16 @@ class CalendarTest extends TestCase
         $this->assertEquals(6, $this->calendar->daysInMonth(2011, 13)); // Leap year
         $this->assertEquals(5, $this->calendar->daysInMonth(2012, 13)); // Common year
     }
+
+    public function test_timezone_handling()
+    {
+        $calendar = new EthiopianCalendar('America/New_York');
+        $gregorian = $calendar->toGregorian('2016-08-28');
+        
+        $this->assertEquals('America/New_York', $gregorian->getTimezone()->getName());
+        
+        $calendar->setTimezone('Africa/Addis_Ababa');
+        $gregorian2 = $calendar->toGregorian('2016-08-28');
+        $this->assertEquals('Africa/Addis_Ababa', $gregorian2->getTimezone()->getName());
+    }
 }

@@ -10,6 +10,31 @@ class EthiopianCalendar
     
     protected array $daysPerMonth = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 5];
 
+    protected \DateTimeZone $timezone;
+
+    public function __construct(string|\DateTimeZone|null $timezone = null)
+    {
+        if ($timezone instanceof \DateTimeZone) {
+            $this->timezone = $timezone;
+        } elseif (is_string($timezone)) {
+            $this->timezone = new \DateTimeZone($timezone);
+        } else {
+            // Fallback to Laravel config or UTC
+            $tz = function_exists('config') ? config('app.timezone', 'UTC') : 'UTC';
+            $this->timezone = new \DateTimeZone($tz);
+        }
+    }
+
+    public function setTimezone(string|\DateTimeZone $timezone): self
+    {
+        $this->timezone = $timezone instanceof \DateTimeZone ? $timezone : new \DateTimeZone($timezone);
+        return $this;
+    }
+
+    public function getTimezone(): \DateTimeZone
+    {
+        return $this->timezone;
+    }
     public function isLeapYear(int $year): bool
     {
         $y = $year + ($year < 0 ? 1 : 0);
@@ -63,7 +88,7 @@ class EthiopianCalendar
     public function fromGregorian($date): array
     {
         if (is_string($date)) {
-            $date = new DateTime($date);
+            $date = new DateTime($date, $this->timezone);
         }
         
         $jd = $this->gregorianToJD($date->format('Y'), $date->format('n'), $date->format('j'));
@@ -131,7 +156,7 @@ class EthiopianCalendar
         $month = $e < 14 ? $e - 1 : $e - 13;
         $year = $month > 2 ? $c - 4716 : $c - 4715;
         
-        $date = new DateTime();
+        $date = new DateTime('now', $this->timezone);
         $date->setDate((int)$year, (int)$month, (int)$day);
         $date->setTime(0, 0, 0);
         return $date;
