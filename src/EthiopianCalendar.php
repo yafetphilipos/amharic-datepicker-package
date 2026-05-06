@@ -60,18 +60,47 @@ class EthiopianCalendar
     /**
      * Convert Gregorian DateTime to Ethiopian date array.
      */
-    public function fromGregorian(DateTime $date): array
+    public function fromGregorian($date): array
     {
+        if (is_string($date)) {
+            $date = new DateTime($date);
+        }
+        
         $jd = $this->gregorianToJD($date->format('Y'), $date->format('n'), $date->format('j'));
         return $this->fromJD($jd);
     }
 
     /**
      * Convert Ethiopian date to Gregorian DateTime.
+     * 
+     * Supports:
+     * - toGregorian(2016, 8, 28)
+     * - toGregorian("2016-08-28")
+     * - toGregorian("28/08/2016")
      */
-    public function toGregorian(int $year, int $month, int $day): DateTime
+    public function toGregorian($year, $month = null, $day = null): DateTime
     {
-        $jd = $this->toJD($year, month: $month, day: $day);
+        if (is_string($year) && $month === null && $day === null) {
+            // Handle string input like "2016-08-28" or "28/08/2016"
+            $parts = preg_split('/[\-\/\. ]/', $year);
+            
+            if (count($parts) === 3) {
+                // Determine if it's Y-m-d or d-m-Y
+                if (strlen($parts[0]) === 4) {
+                    $year = (int)$parts[0];
+                    $month = (int)$parts[1];
+                    $day = (int)$parts[2];
+                } else {
+                    $year = (int)$parts[2];
+                    $month = (int)$parts[1];
+                    $day = (int)$parts[0];
+                }
+            } else {
+                throw new \InvalidArgumentException("Invalid date format string provided.");
+            }
+        }
+
+        $jd = $this->toJD((int)$year, (int)$month, (int)$day);
         return $this->jdToGregorian($jd);
     }
 

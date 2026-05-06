@@ -31,14 +31,44 @@ class CalendarTest extends TestCase
         $this->assertEquals(2016, $ethiopian['year']);
         $this->assertEquals(8, $ethiopian['month']);
         $this->assertEquals(28, $ethiopian['day']);
+
+        // Test with string
+        $ethiopianStr = $this->calendar->fromGregorian('2024-05-06');
+        $this->assertEquals(2016, $ethiopianStr['year']);
     }
 
     public function test_it_converts_ethiopian_to_gregorian()
     {
-        // 2016-08-28 Ethiopian is 2024-05-06 Gregorian
+        // Standard call
         $gregorian = $this->calendar->toGregorian(2016, 8, 28);
-
         $this->assertEquals('2024-05-06', $gregorian->format('Y-m-d'));
+
+        // YYYY-MM-DD
+        $this->assertEquals('2024-05-06', $this->calendar->toGregorian('2016-08-28')->format('Y-m-d'));
+        
+        // DD/MM/YYYY
+        $this->assertEquals('2024-05-06', $this->calendar->toGregorian('28/08/2016')->format('Y-m-d'));
+        
+        // DD.MM.YYYY
+        $this->assertEquals('2024-05-06', $this->calendar->toGregorian('28.08.2016')->format('Y-m-d'));
+        
+        // Mixed space separator
+        $this->assertEquals('2024-05-06', $this->calendar->toGregorian('2016 08 28')->format('Y-m-d'));
+        
+        // Single digit month/day (2016-01-02 Ethiopian is 2023-09-13 Gregorian)
+        $this->assertEquals('2023-09-13', $this->calendar->toGregorian('2016-1-2')->format('Y-m-d'));
+    }
+
+    public function test_it_throws_exception_on_invalid_string()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->calendar->toGregorian('invalid-date');
+    }
+
+    public function test_it_throws_exception_on_incomplete_string()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->calendar->toGregorian('2016-08');
     }
 
     public function test_pagume_days()

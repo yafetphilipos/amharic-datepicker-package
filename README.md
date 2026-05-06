@@ -69,18 +69,22 @@ window.amharicDatepicker = amharicDatepicker;
 ```
 
 ### Backend Conversion
-You can also use the calendar logic in your PHP controllers or Livewire components:
+You can also use the calendar logic in your PHP controllers or Livewire components. The `toGregorian` method is highly flexible and handles strings with various formats and separators automatically.
 
 ```php
 use Yafet\AmharicDatepicker\EthiopianCalendar;
 
 $calendar = new EthiopianCalendar();
 
-// Ethiopian to Gregorian
-$gregorian = $calendar->toGregorian(2016, 8, 28); // Returns DateTime object
+// 1. Using a string (supports YYYY-MM-DD or DD/MM/YYYY)
+$gregorian = $calendar->toGregorian("2016-08-28"); // Returns DateTime object
+$gregorian = $calendar->toGregorian("28/08/2016"); // Works with / or . or spaces
+
+// 2. Using individual arguments
+$gregorian = $calendar->toGregorian(2016, 8, 28);
 
 // Gregorian to Ethiopian
-$ethiopian = $calendar->fromGregorian(new DateTime('2024-05-06')); 
+$ethiopian = $calendar->fromGregorian("2024-05-06"); // Accepts string or DateTime
 // Returns ['year' => 2016, 'month' => 8, 'day' => 28]
 ```
 
