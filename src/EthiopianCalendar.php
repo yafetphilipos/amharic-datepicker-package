@@ -20,7 +20,14 @@ class EthiopianCalendar
             $this->timezone = new \DateTimeZone($timezone);
         } else {
             // Fallback to Laravel config or UTC
-            $tz = function_exists('config') ? config('app.timezone', 'UTC') : 'UTC';
+            $tz = 'UTC';
+            if (function_exists('config')) {
+                try {
+                    $tz = config('app.timezone', 'UTC');
+                } catch (\Throwable $e) {
+                    $tz = 'UTC';
+                }
+            }
             $this->timezone = new \DateTimeZone($tz);
         }
     }
@@ -83,16 +90,42 @@ class EthiopianCalendar
     }
 
     /**
-     * Convert Gregorian DateTime to Ethiopian date array.
+     * Convert Gregorian date to Ethiopian date.
+     * 
+     * @param mixed $date Can be string, DateTimeInterface, timestamp, or array [Y, m, d]
      */
-    public function fromGregorian($date): array
+    public function fromGregorian(mixed $date = null): EthiopianDate
     {
+        if ($date === null) {
+            $date = new DateTime('now', $this->timezone);
+        }
+
         if (is_string($date)) {
             $date = new DateTime($date, $this->timezone);
+        } elseif (is_numeric($date)) {
+            $date = (new DateTime('now', $this->timezone))->setTimestamp((int)$date);
+        } elseif (is_array($date) && count($date) >= 3) {
+            $dateObj = new DateTime('now', $this->timezone);
+            $dateObj->setDate($date[0], $date[1], $date[2]);
+            $date = $dateObj;
         }
         
-        $jd = $this->gregorianToJD($date->format('Y'), $date->format('n'), $date->format('j'));
-        return $this->fromJD($jd);
+        if (!$date instanceof \DateTimeInterface) {
+            throw new \InvalidArgumentException("Invalid date input provided.");
+        }
+        
+        $jd = $this->gregorianToJD((int)$date->format('Y'), (int)$date->format('n'), (int)$date->format('j'));
+        $parts = $this->fromJD($jd);
+
+        return new EthiopianDate($parts['year'], $parts['month'], $parts['day']);
+    }
+
+    /**
+     * Helper to get current Ethiopian date.
+     */
+    public static function now(string|\DateTimeZone|null $timezone = null): EthiopianDate
+    {
+        return (new static($timezone))->fromGregorian();
     }
 
     /**

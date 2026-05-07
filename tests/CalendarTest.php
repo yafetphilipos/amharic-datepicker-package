@@ -31,10 +31,23 @@ class CalendarTest extends TestCase
         $this->assertEquals(2016, $ethiopian['year']);
         $this->assertEquals(8, $ethiopian['month']);
         $this->assertEquals(28, $ethiopian['day']);
+        $this->assertEquals(2016, $ethiopian->year);
 
         // Test with string
         $ethiopianStr = $this->calendar->fromGregorian('2024-05-06');
         $this->assertEquals(2016, $ethiopianStr['year']);
+    }
+
+    public function test_it_formats_ethiopian_date()
+    {
+        $date = new DateTime('2024-05-06');
+        $ethDate = $this->calendar->fromGregorian($date);
+
+        $this->assertEquals('28/08/2016', $ethDate->format('d/m/Y'));
+        $this->assertEquals('28/8/2016', $ethDate->format('j/n/Y'));
+        $this->assertEquals('ሚያዝያ 28 2016', $ethDate->format('F j Y'));
+        $this->assertEquals('ሚያዝ 28 2016', $ethDate->format('M j Y'));
+        $this->assertEquals('Date: 28', $ethDate->format('\D\a\t\e: d'));
     }
 
     public function test_it_converts_ethiopian_to_gregorian()
