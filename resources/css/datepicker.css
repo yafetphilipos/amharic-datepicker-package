@@ -143,3 +143,17 @@
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+.datepicker-input.has-error {
+    border-color: #ef4444;
+}
+
+.datepicker-input.has-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.datepicker-error-message {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #ef4444;
+}

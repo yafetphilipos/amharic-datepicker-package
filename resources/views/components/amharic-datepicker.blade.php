@@ -20,11 +20,15 @@
                 {{ $attributes->whereDoesntStartWith(['wire:model', 'x-model', 'class']) }}
                 x-model="formattedValue"
                 @focus="open = true"
-                class="{{ $attributes->get('class') }} datepicker-input"
-                readonly
-                placeholder="ቀን ይምረጡ"
+                @input="handleManualInput"
+                class="{{ $attributes->get('class') }} datepicker-input @error($name) has-error @enderror"
+                placeholder="{{ $format === 'dd/mm/yyyy' ? 'ቀን/ወር/አመት' : 'አመት-ወር-ቀን' }}"
             >
             <input type="hidden" name="{{ $name }}" x-model="value">
+            
+            @error($name)
+                <p class="datepicker-error-message">{{ $message }}</p>
+            @enderror
         </div>
     @endif
 
@@ -72,4 +76,10 @@
             </template>
         </div>
     </div>
+
+    @if($inline)
+        @error($name)
+            <p class="datepicker-error-message">{{ $message }}</p>
+        @enderror
+    @endif
 </div>

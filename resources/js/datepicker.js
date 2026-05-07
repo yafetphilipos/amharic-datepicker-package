@@ -122,6 +122,54 @@ export default function amharicDatepicker(config) {
             this.updateCalendar();
         },
 
+        handleManualInput(event) {
+            const input = event.target.value;
+            if (!input) {
+                this.value = '';
+                this.selectedDate = null;
+                return;
+            }
+
+            let day, month, year;
+            const format = config.format || 'dd/mm/yyyy';
+            const separators = /[\/\-\.]/;
+            const parts = input.split(separators);
+
+            if (parts.length === 3) {
+                if (format === 'dd/mm/yyyy') {
+                    day = parseInt(parts[0]);
+                    month = parseInt(parts[1]);
+                    year = parseInt(parts[2]);
+                } else {
+                    year = parseInt(parts[0]);
+                    month = parseInt(parts[1]);
+                    day = parseInt(parts[2]);
+                }
+
+                if (this.isValidDate(year, month, day)) {
+                    this.selectedDate = { year, month, day };
+                    this.value = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    
+                    // Jump calendar to this date
+                    this.displayMonth = month;
+                    this.displayYear = year;
+                    this.updateCalendar();
+
+                    // Notify listeners
+                    this.$dispatch('input', this.value);
+                    this.$dispatch('change', this.value);
+                }
+            }
+        },
+
+        isValidDate(year, month, day) {
+            if (isNaN(year) || isNaN(month) || isNaN(day)) return false;
+            if (month < 1 || month > 13) return false;
+            if (day < 1 || day > this.calendar.daysInMonth(year, month)) return false;
+            if (year < config.yearStart || (config.yearEnd && year > config.yearEnd)) return false;
+            return true;
+        },
+
         selectDate(day) {
             this.selectedDate = { year: day.year, month: day.month, day: day.day };
             const newValue = `${day.year}-${String(day.month).padStart(2, '0')}-${String(day.day).padStart(2, '0')}`;
