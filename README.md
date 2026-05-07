@@ -349,6 +349,22 @@ window.amharicDatepicker = amharicDatepicker;
 
 ---
 
+# Error Customization
+
+By default, the component provides a premium error message design with an icon. However, you can customize it using the `error` slot to match your theme (e.g., when using **Flux** or **Volt**).
+
+```blade
+<x-amharic-datepicker name="dob" wire:model="dob">
+    <x-slot:error>
+        @error('dob')
+            <flux:error>{{ $message }}</flux:error>
+        @enderror
+    </x-slot:error>
+</x-amharic-datepicker>
+```
+
+---
+
 # Backend Conversion Usage
 
 # Initialize Calendar
